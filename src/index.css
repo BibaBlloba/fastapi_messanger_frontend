@@ -8,3 +8,7 @@
   color-scheme: light dark;
   background-color: #242424;
 }
+
+.ant-tabs-nav::before {
+  border-bottom: none !important;
+}
