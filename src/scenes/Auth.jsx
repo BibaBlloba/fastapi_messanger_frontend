@@ -10,8 +10,18 @@ const Auth = () => {
     maxCount: 1,
   });
 
-  const openNotification = message => {
+  const openNotificationError = message => {
     api.error({
+      message: message,
+      showProgress: true,
+      pauseOnHover: false,
+      placement: 'top',
+      duration: 3,
+    });
+  };
+
+  const openNotificationSuccess = message => {
+    api.success({
       message: message,
       showProgress: true,
       pauseOnHover: false,
@@ -26,8 +36,9 @@ const Auth = () => {
       params.append('username', values.login);
       params.append('password', values.password);
       const response = await axios.post(`${API_URL}/auth/login`, params);
+      openNotificationSuccess('Збс')
     } catch (error) {
-      openNotification('Неверный логин ли пароль')
+      openNotificationError('Неверный логин ли пароль')
     }
   }
 
