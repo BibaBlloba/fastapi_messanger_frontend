@@ -1,16 +1,19 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 import General from "./scenes/General"
 import Auth from "./scenes/Auth"
+import { UserProvider } from "./context/UserContext"
 
 function App() {
 
   return (
     <>
-      <BrowserRouter>
-        <Routes>
-          <Route path='/' element={<Auth />} />
-        </Routes>
-      </BrowserRouter>
+      <UserProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path='/' element={<Auth />} />
+          </Routes>
+        </BrowserRouter>
+      </UserProvider>
     </>
   )
 }

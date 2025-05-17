@@ -2,6 +2,7 @@ import React from 'react'
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons'
 import { Button, ConfigProvider, Form, Input, notification, Tabs } from 'antd'
 import axios from 'axios'
+import { useUser } from '../context/UserContext'
 
 const Auth = () => {
   const API_URL = import.meta.env.VITE_API_URL;
@@ -9,6 +10,11 @@ const Auth = () => {
     threshold: 1,
     maxCount: 1,
   });
+  const { user, isAuthenticated, login, logout, register } = useUser();
+
+  if (isAuthenticated) {
+    window.location.href = '/home'
+  }
 
   const openNotificationError = message => {
     api.error({
@@ -30,14 +36,29 @@ const Auth = () => {
     });
   };
 
+  const registerFinish = async (values) => {
+    try {
+      const register_status = await register({
+        username: values.login,
+        password: values.password
+      });
+
+      if (register_status.success === false) {
+        openNotificationError('Пользователь уже существует');
+      } else {
+        openNotificationSuccess('Регистрация прошла успешно!');
+      }
+    } catch (error) {
+      openNotificationError('Ошибка при регистрации');
+    }
+  }
+
   const loginFinish = async (values) => {
     try {
-      const params = new URLSearchParams();
-      params.append('username', values.login);
-      params.append('password', values.password);
-      const response = await axios.post(`${API_URL}/auth/login`, params);
-      openNotificationSuccess('Збс')
+      const login_status = await login({ username: values.login, password: values.password })
+      console.log(login_status.data.success)
     } catch (error) {
+      console.log(error)
       openNotificationError('Неверный логин ли пароль')
     }
   }
@@ -45,11 +66,11 @@ const Auth = () => {
   const LoginForm = () => {
     return (
       <Form onFinish={loginFinish}>
-        <Form.Item label='Логин' name='login'>
+        <Form.Item label='Логин' name='login' rules={[{ required: true }]}>
           <Input placeholder='login' />
         </Form.Item>
 
-        <Form.Item label='Пароль' name='password'>
+        <Form.Item label='Пароль' name='password' rules={[{ required: true }]}>
           <Input.Password
             placeholder="password"
             iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
@@ -67,14 +88,16 @@ const Auth = () => {
 
   const RegisterForm = () => {
     return (
-      <Form>
-        <Form.Item label='Логин'>
-          <Input />
+      <Form onFinish={registerFinish}>
+        <Form.Item label='Логин' name='login' rules={[{ required: true }]}>
+          <Input
+            placeholder="login"
+          />
         </Form.Item>
 
-        <Form.Item label='Пароль'>
+        <Form.Item label='Пароль' name='password' rules={[{ required: true }]}>
           <Input.Password
-            placeholder="input password"
+            placeholder="password"
             iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
           />
         </Form.Item>
