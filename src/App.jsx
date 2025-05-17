@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import General from "./scenes/General"
 import Auth from "./scenes/Auth"
 import { UserProvider, useUser } from "./context/UserContext"
+import Chat from "./scenes/Chat"
 
 function App() {
 
@@ -16,7 +17,9 @@ function App() {
               <ProtectedRoute>
                 <General />
               </ProtectedRoute>
-            } />
+            }>
+              <Route path=':id' element={<Chat />} />
+            </Route>
           </Routes>
         </BrowserRouter>
       </UserProvider>

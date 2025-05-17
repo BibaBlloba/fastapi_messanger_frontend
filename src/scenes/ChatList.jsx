@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useUser } from '../context/UserContext';
 import axios from 'axios';
-import { Spin } from 'antd';
+import { Button, Spin } from 'antd';
 import Avatar from 'antd/es/avatar/Avatar';
 import { UserOutlined } from '@ant-design/icons';
+import { IoLogOutOutline } from "react-icons/io5";
 
 const ChatList = () => {
   const [allUsersList, setAllUsersList] = useState(null)
@@ -28,7 +29,10 @@ const ChatList = () => {
 
   const User = ({ item, isEven }) => {
     return (
-      <div className={`pl-2 min-h-15 flex gap-2 justify-start items-center ${isEven ? 'bg-[#333333]' : 'bg-[#2a2a2a]'}`}>
+      <div
+        className={`pl-2 min-h-15 flex gap-2 justify-start items-center ${isEven ? 'bg-[#333333]' : 'bg-[#2a2a2a]'}`}
+        onClick={() => { window.location.href = `/home/${item.user.id}` }}
+      >
         <Avatar size={48} icon={<UserOutlined />} />
         <div className='flex flex-col'>
           <p>{item.user.username}</p>
@@ -39,18 +43,23 @@ const ChatList = () => {
   }
 
   return (
-    <div className='min-h-screen min-w-70 bg-[#212121] flex flex-col justify-start items-start'>
-      {!allUsersListLoading ? (
-        allUsersList.map((item, index) => (
-          <div key={item.user.id} className='w-full'>
-            <User item={item} isEven={index % 2 === 0} />
+    <div className='min-h-screen min-w-70 bg-[#212121] flex flex-col justify-between items-start'>
+      <div className='flex flex-col justify-center items-start w-full'>
+        {!allUsersListLoading ? (
+          allUsersList.map((item, index) => (
+            <div key={item.user.id} className='w-full'>
+              <User item={item} isEven={index % 2 === 0} />
+            </div>
+          ))
+        ) : (
+          <div className='flex justify-center items-center w-full h-full'>
+            <Spin percent='auto' size='large' />
           </div>
-        ))
-      ) : (
-        <div className='flex justify-center items-center w-full h-full'>
-          <Spin percent='auto' size='large' />
-        </div>
-      )}
+        )}
+      </div>
+      <div className='flex justify-between items-center p-5'>
+        <IoLogOutOutline size={30} color='#F53B31' onClick={() => { logout() }} />
+      </div>
     </div>
   )
 }
