@@ -4,15 +4,19 @@ import { useUser } from '../context/UserContext';
 import axios from 'axios';
 import { Spin } from 'antd';
 import formatDate from '../components/formatDate'
+import { useWebsocket } from '../hooks/useWebsocket';
 
 const Chat = () => {
   const { id } = useParams()
-  const { user, isAuthenticated, login, logout, register } = useUser();
+  const { user, isAuthenticated, login, logout, register, token } = useUser();
   const [loading, setLoading] = useState(true)
   const [messages, setMessages] = useState(null)
   const messagesEndRef = useRef(null);
   const containerRef = useRef(null);
   const API_URL = import.meta.env.VITE_API_URL;
+  const WS_URL = import.meta.env.VITE_WS_URL;
+  const { webSocketMessages, sendMessage, isConnected } = useWebsocket(`${WS_URL}${token}`);
+  const [inputMessage, setInputMessage] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -52,14 +56,53 @@ const Chat = () => {
         </div>
       </div>)
   }
-  //
+
+  useEffect(() => {
+    if (webSocketMessages && webSocketMessages.length > 0) {
+      const lastWebSocketMessage = webSocketMessages[webSocketMessages.length - 1];
+
+      const parsedMessage = typeof lastWebSocketMessage === 'string'
+        ? JSON.parse(lastWebSocketMessage)
+        : lastWebSocketMessage;
+
+      const formattedMessage = {
+        id: parsedMessage.id,
+        content: parsedMessage.content,
+        created_at: parsedMessage.created_at,
+        direction: parsedMessage.sender_id === user.id ? 'outgoing' : 'incoming',
+        recipient_id: parsedMessage.recipient_id,
+        sender_id: parsedMessage.sender_id
+      };
+
+      setMessages(prev => {
+        const currentMessages = prev || [];
+        const messageExists = currentMessages.some(msg => msg.id === formattedMessage.id);
+
+        return messageExists
+          ? currentMessages
+          : [...currentMessages, formattedMessage];
+      });
+    }
+  }, [webSocketMessages, user.id]);
+
   // Автоматический скролл вниз при загрузке новых сообщений
   useEffect(() => {
     scrollToBottom();
-  }, [messages]); // Срабатывает при изменении messages
+  }, [messages, webSocketMessages]); // Срабатывает при изменении messages
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleSendMessage = () => {
+    if (inputMessage.trim()) {
+      sendMessage({
+        content: inputMessage,
+        sender: user.id,
+        timestamp: new Date().toISOString()
+      });
+      setInputMessage('');
+    }
   };
 
   return (

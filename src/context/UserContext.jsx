@@ -86,6 +86,7 @@ export function UserProvider({ children }) {
     login,
     logout,
     register,
+    token,
   };
 
   return (
