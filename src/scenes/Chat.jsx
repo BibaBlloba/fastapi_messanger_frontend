@@ -95,41 +95,64 @@ const Chat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleSendMessage = () => {
-    if (inputMessage.trim()) {
+  const handleSendMessage = (values) => {
+
+    if (values.trim()) {
       sendMessage({
-        content: inputMessage,
-        sender: user.id,
-        timestamp: new Date().toISOString()
+        type: "private",
+        to: id,
+        content: values,
       });
       setInputMessage('');
     }
+
+    const formattedMessage = {
+      id: Date.now(),
+      content: values,
+      created_at: new Date().toISOString(),
+      direction: 'outgoing',
+    };
+
+    setMessages(prev => {
+      const currentMessages = prev || [];
+      const messageExists = currentMessages.some(msg => msg.id === formattedMessage.id);
+
+      return messageExists
+        ? currentMessages
+        : [...currentMessages, formattedMessage];
+    });
   };
 
   return (
     <div
       ref={containerRef}
-      className='flex flex-col w-full h-[calc(100vh-30px)] overflow-y-auto space-y-3 px-4 pt-10'
+      className='flex flex-col justify-between w-full h-[100vh] overflow-y-auto space-y-3'
     >
-      {!loading ? (
-        <>
-          {messages.map((item) => (
-            <div key={item.id}>
-              {item.direction === 'incoming' ? (
-                <IncomingMessage item={item} />
-              ) : (
-                <OutgoingMessage item={item} />
-              )}
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </>
-      ) : (
-        <div className='flex justify-center items-center w-full h-full'>
-          <Spin percent='auto' size='large' />
-        </div>
-      )}
-      <InputField />
+      <div
+        className='flex flex-col overflow-y-auto space-y-3 px-4 pt-10'
+      >
+        {!loading ? (
+          <>
+            {messages.map((item) => (
+              <div key={item.id}>
+                {item.direction === 'incoming' ? (
+                  <IncomingMessage item={item} />
+                ) : (
+                  <OutgoingMessage item={item} />
+                )}
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </>
+        ) : (
+          <div className='flex justify-center items-center w-full h-full'>
+            <Spin percent='auto' size='large' />
+          </div>
+        )}
+      </div>
+      <div className="sticky bottom-0 p-4 bg-[#212121]">
+        <InputField onClick={handleSendMessage} />
+      </div>
     </div>
   )
 }
