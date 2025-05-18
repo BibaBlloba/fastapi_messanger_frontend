@@ -5,11 +5,13 @@ import { Button, Spin } from 'antd';
 import Avatar from 'antd/es/avatar/Avatar';
 import { UserOutlined } from '@ant-design/icons';
 import { IoLogOutOutline } from "react-icons/io5";
+import { useNavigate } from 'react-router-dom';
 
 const ChatList = () => {
   const [allUsersList, setAllUsersList] = useState(null)
   const [allUsersListLoading, setAllUsersListLoading] = useState(true)
   const API_URL = import.meta.env.VITE_API_URL;
+  const navigate = useNavigate();
   const { user, isAuthenticated, login, logout, register } = useUser();
 
   useEffect(() => {
@@ -27,11 +29,18 @@ const ChatList = () => {
     fetchData()
   }, [])
 
+
   const User = ({ item, isEven }) => {
+
+    const handleClickRedirect = (e) => {
+      if (window.getSelection().toString()) return;
+      navigate(`/home/${item.user.id}`);
+    };
+
     return (
       <div
         className={`pl-2 min-h-15 flex gap-2 justify-start items-center ${isEven ? 'bg-[#333333]' : 'bg-[#2a2a2a]'}`}
-        onClick={() => { window.location.href = `/home/${item.user.id}` }}
+        onClick={handleClickRedirect}
       >
         <Avatar size={48} icon={<UserOutlined />} />
         <div className='flex flex-col'>
