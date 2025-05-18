@@ -67,7 +67,7 @@ const Auth = () => {
     return (
       <Form onFinish={loginFinish}>
         <Form.Item label='Логин' name='login' rules={[{ required: true }]}>
-          <Input placeholder='login' />
+          <Input placeholder='login' autoFocus />
         </Form.Item>
 
         <Form.Item label='Пароль' name='password' rules={[{ required: true }]}>
