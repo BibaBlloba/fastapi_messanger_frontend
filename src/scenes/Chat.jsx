@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Spin } from 'antd';
 import formatDate from '../components/formatDate'
 import { useWebsocket } from '../hooks/useWebsocket';
+import InputField from '../components/InputField';
 
 const Chat = () => {
   const { id } = useParams()
@@ -108,7 +109,7 @@ const Chat = () => {
   return (
     <div
       ref={containerRef}
-      className='w-full h-[calc(100vh-30px)] overflow-y-auto space-y-3 px-4 pt-10'
+      className='flex flex-col w-full h-[calc(100vh-30px)] overflow-y-auto space-y-3 px-4 pt-10'
     >
       {!loading ? (
         <>
@@ -128,6 +129,7 @@ const Chat = () => {
           <Spin percent='auto' size='large' />
         </div>
       )}
+      <InputField />
     </div>
   )
 }
