@@ -6,10 +6,12 @@ import { Spin } from 'antd';
 import formatDate from '../components/formatDate'
 import { useWebsocket } from '../hooks/useWebsocket';
 import InputField from '../components/InputField';
+import ChatHeader from '../components/ChatHeader';
 
 const Chat = () => {
   const { id } = useParams()
   const { user, isAuthenticated, login, logout, register, token } = useUser();
+  const [recipientUser, setRecipientUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [messages, setMessages] = useState(null)
   const messagesEndRef = useRef(null);
@@ -20,10 +22,23 @@ const Chat = () => {
   const [inputMessage, setInputMessage] = useState('');
 
   useEffect(() => {
+    const fetchRecipientUser = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/users/${id}`, { withCredentials: true })
+        setRecipientUser(response.data)
+      } catch (error) {
+        //
+      }
+    }
+    if (id) {
+      fetchRecipientUser()
+    }
+  }, [id])
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`${API_URL}/messages/${id}`, { withCredentials: true })
-        console.log(response.data)
         setMessages(response.data)
         setLoading(false)
       } catch {
@@ -128,6 +143,9 @@ const Chat = () => {
       ref={containerRef}
       className='flex flex-col justify-between w-full h-[100vh] overflow-y-auto space-y-3'
     >
+      <div className='flex items-center min-h-15 bg-[#212121] pl-2 m-0'>
+        <ChatHeader user={recipientUser} />
+      </div>
       <div
         className='flex flex-col overflow-y-auto space-y-3 px-4 pt-10'
       >
